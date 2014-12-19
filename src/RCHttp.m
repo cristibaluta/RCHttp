@@ -78,8 +78,6 @@
 
 - (void)post:(NSDictionary*)dictionary completion:(void(^)(NSDictionary *dict))block error:(void(^)())error_block {
 	
-	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-	
 	// Create POST variables
 	NSMutableString *postStr = [[NSMutableString alloc] init];
 	
@@ -98,8 +96,6 @@
     [request setHTTPBody:postData];
 	
 	[NSURLConnection sendAsynchronousRequest:request queue:queue completionHandler:^(NSURLResponse *response, NSData *data, NSError *err) {
-		
-		[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 		
 		if (!err) {
 			NSError *err2 = nil;
@@ -201,11 +197,11 @@
 #pragma mark Network indicator
 
 - (void) downloadStarted {
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+//	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 }
 
 - (void) downloadEnded {
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+//	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
 
 

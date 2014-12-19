@@ -6,6 +6,7 @@
 //  Copyright 2010 ralcr. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import <CFNetwork/CFNetwork.h>
 
 @protocol RCHttpDelegate;
