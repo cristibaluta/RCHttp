@@ -8,25 +8,30 @@
 
 #import "RCHttp.h"
 
+@interface RCHttp () <NSURLSessionDelegate> {
+	
+	
+	NSURLSession *_session;
+}
+
+@end
+
+static int _activeRequests = 0;
 
 @implementation RCHttp
 
-
-- (id)initWithURL:(NSString*)u delegate:(id)d {
+- (instancetype)initWithUrl:(NSString *)url {
 	
 	if (self = [super init]) {
-		_URL = u;
-		delegate = d;
-		queue = [[NSOperationQueue alloc] init];
+		
 	}
 	return self;
 }
 
-- (id)initWithBaseURL:(NSString*)u endpoint:(NSString*)endpoint {
+- (instancetype)initWithBaseUrl:(NSString *)url endpoint:(NSString *)endpoint {
 	
 	if (self = [super init]) {
 		_URL = [NSString stringWithFormat:@"%@%@%@", u, endpoint ? @"/" : @"", endpoint ? endpoint : @""];
-		queue = [[NSOperationQueue alloc] init];
 	}
 	return self;
 }
@@ -40,11 +45,10 @@
 }
 
 - (void)cancel {
-	[connection cancel];
-	connection = nil;
+	[_session ];
 }
 
-- (void)post:(NSDictionary*)dictionary {
+- (void)POST:(NSDictionary *)dict completion:(void (^)(NSDictionary *))completionBlock error:(void (^)())errorBlock {
 	
 	// Create POST variables
 	NSMutableString *postStr = [[NSMutableString alloc] init];
@@ -118,90 +122,14 @@
 }
 
 
-#pragma mark NSURLConnection delegate methods
-
-- (void)connection:(NSURLConnection *)conn didReceiveResponse:(NSURLResponse *)response {
-	_receivedData = [NSMutableData data];
-}
-
-- (void)connection:(NSURLConnection *)conn didReceiveData:(NSData *)data {
-	
-	// Called when a chunk of data has been downloaded.
-	
-	[_receivedData appendData:data];
-	
-	[self performSelectorOnMainThread:@selector(onRCHttpProgress) withObject:nil waitUntilDone:NO];
-}
-
-/*- (NSURLRequest *)connection: (NSURLConnection *)inConnection
-             willSendRequest: (NSURLRequest *)inRequest
-            redirectResponse: (NSURLResponse *)inRedirectResponse;
-{
-    NSLog(@"redirectResponse %@", inRedirectResponse);
-	return inRequest;
-//	if (inRedirectResponse) {
-//        NSMutableURLRequest *r = [[request mutableCopy] autorelease]; // original request
-//        [r setURL: [inRequest URL]];
-//        return r;
-//    } else {
-//        return inRequest;
-//    }
-}*/
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)conn {
-    
-    _result = [[NSString alloc] initWithData:_receivedData encoding:NSASCIIStringEncoding];
-	
-	[self performSelectorOnMainThread:@selector(onRCHttpComplete) withObject:nil waitUntilDone:NO];
-}
-
-- (void)connection:(NSURLConnection *)conn didFailWithError:(NSError *)error {
-    
-	if ([error code] == kCFURLErrorNotConnectedToInternet) {
-        [self performSelectorOnMainThread:@selector(onHTTPConnectionError) withObject:nil waitUntilDone:NO];
-    }
-	else {
-        [self performSelectorOnMainThread:@selector(onRCHttpError) withObject:nil waitUntilDone:NO];
-    }
-}
-
-- (NSCachedURLResponse *)connection:(NSURLConnection *)connection  willCacheResponse:(NSCachedURLResponse *)cachedResponse {
-	// Disable caching so that each time we run this app we are starting with a clean slate.
-    return nil;
-}
-
-
-#pragma mark Delegate stuff
-
-- (void) onRCHttpProgress {
-	if ([delegate respondsToSelector:@selector(onRCHttpProgress:)])
-		[delegate performSelector:@selector(onRCHttpProgress:) withObject:self];
-}
-
-- (void) onRCHttpComplete {
-	if ([delegate respondsToSelector:@selector(onRCHttpComplete:)])
-		[delegate performSelector:@selector(onRCHttpComplete:) withObject:self];
-}
-
-- (void) onRCHttpError {
-	if ([delegate respondsToSelector:@selector(onRCHttpError:)])
-		[delegate performSelector:@selector(onRCHttpError:) withObject:self];
-}
-
-- (void) onHTTPConnectionError {
-	if ([delegate respondsToSelector:@selector(onHTTPConnectionError)])
-		[delegate performSelector:@selector(onHTTPConnectionError)];
-}
-
-
 #pragma mark Network indicator
 
 - (void) downloadStarted {
-//	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+	[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 }
 
 - (void) downloadEnded {
-//	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
 
 
