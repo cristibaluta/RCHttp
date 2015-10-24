@@ -6,6 +6,7 @@
 //  Copyright 2010 ralcr. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "RCHttp.h"
 
 @interface RCHttp () <NSURLSessionDelegate> {
@@ -16,7 +17,7 @@
 
 @end
 
-static int _activeRequests = 0;
+//static int _activeRequests = 0;
 
 @implementation RCHttp
 
