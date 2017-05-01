@@ -8,12 +8,12 @@
 
 import UIKit
 
-class RCHttp: NSObject {
+class RCHttp {
 	
-	var url :String?;
-	var task :NSURLSessionTask?;
+	var url: String?
+	var task: URLSessionTask?
 	
-	convenience init (_ baseURL:NSString, endpoint:NSString?) {
+	convenience init (baseURL: String, endpoint: String?) {
 		self.init()
 		let separator = endpoint != nil ? "/" : ""
 		let end = endpoint != nil ? endpoint : ""
@@ -23,25 +23,25 @@ class RCHttp: NSObject {
 	
 	//pragma mark post data sync and async
 
-	func post (dictionary:Dictionary<String,AnyObject>, completion:NSDictionary -> Void, errorHandler:NSDictionary -> Void) {
+	func post (dictionary: Dictionary<String, AnyObject>, completion: @escaping (NSDictionary) -> Void, errorHandler: @escaping (NSDictionary) -> Void) {
 	
-		var postStr :NSString = "";
+		var postStr = ""
 		for (key, vale) in dictionary {
-			postStr = "\(postStr)\(key)=\(vale)&";
+			postStr = "\(postStr)\(key)=\(vale)&"
 		}
 		
-		let postData :NSData = postStr.dataUsingEncoding(NSASCIIStringEncoding, allowLossyConversion:true)!;
-		let postLength = String (postData.length);
+		let postData = postStr.data(using: String.Encoding.ascii, allowLossyConversion: true)!
+		let postLength = String (postData.count)
 		
 		let request = NSMutableURLRequest()
-		request.URL = NSURL(string:url!)
-		request.HTTPMethod = "POST"
-		request.setValue(postLength, forHTTPHeaderField:"Content-Length")
-		request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField:"Content-Type")
-		request.HTTPBody = postData;
+		request.url = URL(string: url!)
+		request.httpMethod = "POST"
+		request.setValue(postLength, forHTTPHeaderField: "Content-Length")
+		request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+		request.httpBody = postData
 		
-		let session = NSURLSession( configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration());
-		task = session.dataTaskWithRequest(request, completionHandler: {(data, response, error) in
+		let session = URLSession(configuration: URLSessionConfiguration.ephemeral)
+		task = session.dataTask(with: request as URLRequest, completionHandler: {(data, response, error) in
 			
 			// notice that I can omit the types of data, response and error
 			
@@ -49,7 +49,7 @@ class RCHttp: NSObject {
 
 			if (error == nil) {
 				var json: NSDictionary = ["text":"Json parse error"]
-				if let d = try? NSJSONSerialization.JSONObjectWithData(data!, options:NSJSONReadingOptions.AllowFragments) {
+				if let d = try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments) {
 					json = d as! NSDictionary
 				}
 				completion(json)
@@ -61,40 +61,40 @@ class RCHttp: NSObject {
 		task?.resume()
 	}
 	
-	func upload (data:NSData, filename:String, completion:NSDictionary -> Void, error:NSDictionary -> Void) {
+	func upload (data: Data, filename: String, completion: @escaping (NSDictionary) -> Void, error: @escaping (NSDictionary) -> Void) {
 		
-		let request :NSMutableURLRequest = NSMutableURLRequest();
-		request.URL = NSURL(string:url!);
-		request.HTTPMethod = "POST";
-//		request.setValue(postLength, forHTTPHeaderField:"Content-Length");
-		request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField:"Content-Type");
-//		request.HTTPBody = postData;
+		let request :NSMutableURLRequest = NSMutableURLRequest()
+		request.url = URL(string: url!)
+		request.httpMethod = "POST"
+//		request.setValue(postLength, forHTTPHeaderField:"Content-Length")
+		request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField:"Content-Type")
+//		request.HTTPBody = postData
 		
-		let session = NSURLSession( configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration());
-		task = session.uploadTaskWithRequest(request, fromData: data, completionHandler: { (data_, response_, error_) -> Void in
+		let session = URLSession( configuration: URLSessionConfiguration.ephemeral)
+		task = session.uploadTask(with: request as URLRequest, from: data, completionHandler: { (data_, response_, error_) -> Void in
 			var json :NSDictionary? = nil;
 			
 			if (error_ != nil) {
-				let e: NSErrorPointer? = nil;
-				var response_dict :AnyObject?
+				let e: NSErrorPointer? = nil
+				var response_dict: Any?
 				do {
-					response_dict = try NSJSONSerialization.JSONObjectWithData(data_!, options:NSJSONReadingOptions.AllowFragments)
-				} catch let error as NSError {
-					e!.memory = error
+					response_dict = try JSONSerialization.jsonObject(with: data_!, options: JSONSerialization.ReadingOptions.allowFragments)
+				} catch _ as NSError {
+//					e??.memory = error
 					response_dict = nil
 				} catch {
 					fatalError()
 				};
 				//				println(response_dict);
 				if (e! == nil) {
-					json = ["text":"Json parse error"];
+					json = ["text": "Json parse error"]
 				}
 				else {
-					json = response_dict as? NSDictionary;
+					json = response_dict as? NSDictionary
 				}
 				completion(json!);
 			}
-			error(["text":"Dwnlad error"]);
+			error(["text": "Dwnlad error"])
 		})
 		task?.resume()
 	}
@@ -104,10 +104,10 @@ class RCHttp: NSObject {
 	}
 	
 	func downloadStarted () {
-		UIApplication.sharedApplication().networkActivityIndicatorVisible = true;
+		UIApplication.shared.isNetworkActivityIndicatorVisible = true
 	}
 	
 	func downloadEnded () {
-		UIApplication.sharedApplication().networkActivityIndicatorVisible = false;
+		UIApplication.shared.isNetworkActivityIndicatorVisible = false
 	}
 }
