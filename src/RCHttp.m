@@ -90,28 +90,26 @@
 	[request setHTTPMethod:@"POST"];
 	
 	// We always need a boundary when we post a file
-//	NSString *boundary = @"---------------------------14737809831466499882746641449";
-//	NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
-//	[request addValue:contentType forHTTPHeaderField: @"Content-Type"];
-//	
-//	// Now lets create the body of the post
-//	NSString *bound1 = [NSString stringWithFormat:@"\r\n--%@\r\n", boundary];
-//	NSString *bound2 = [NSString stringWithFormat:@"\r\n--%@--\r\n", boundary];
-//	NSString *contentDisposition = [NSString stringWithFormat:@"Content-Disposition: form-data; name=\"uploadFile\"; filename=\"%@\"\r\n", filename];
-//	
-//	NSMutableData *body = [NSMutableData data];
-//	[body appendData:[bound1 dataUsingEncoding:NSUTF8StringEncoding]];
-//	[body appendData:[contentDisposition dataUsingEncoding:NSUTF8StringEncoding]];
-//	[body appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-//	[body appendData:[NSData dataWithData:data]];
-//	[body appendData:[bound2 dataUsingEncoding:NSUTF8StringEncoding]];
-//	
-//	[request setHTTPBody:body];
+	NSString *boundary = @"---------------------------14737809831466499882746641449";
+	NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+	[request addValue:contentType forHTTPHeaderField: @"Content-Type"];
+	
+	// Now lets create the body of the post
+	NSString *bound1 = [NSString stringWithFormat:@"\r\n--%@\r\n", boundary];
+	NSString *bound2 = [NSString stringWithFormat:@"\r\n--%@--\r\n", boundary];
+	NSString *contentDisposition = [NSString stringWithFormat:@"Content-Disposition: form-data; name=\"photo\"; filename=\"%@\"\r\n", filename];
+	
+	NSMutableData *body = [NSMutableData data];
+	[body appendData:[bound1 dataUsingEncoding:NSUTF8StringEncoding]];
+	[body appendData:[contentDisposition dataUsingEncoding:NSUTF8StringEncoding]];
+	[body appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+	[body appendData:[NSData dataWithData:data]];
+	[body appendData:[bound2 dataUsingEncoding:NSUTF8StringEncoding]];
 	
 	_task = [[NSURLSession sharedSession] uploadTaskWithRequest:request
-													   fromData:data
+													   fromData:body
 											  completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-		
+                                                  RCLogO(data);
 												  if (!error) {
 													  NSError *jerror = nil;
 													  NSDictionary *response_dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jerror];
