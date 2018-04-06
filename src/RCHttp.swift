@@ -109,6 +109,46 @@ class RCHttp {
 		task?.resume()
 	}
 	
+    //mark: put data sync and async
+    
+    func put (at path: String, parameters: [String: Any], success: @escaping (Any) -> Void, failure: @escaping ([String: Any]) -> Void) {
+        
+        guard baseURL != nil else {
+            print("URL was not set")
+            failure([:])
+            return
+        }
+        let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
+        let url = URL(string: fullPath)!
+        let jsonData = try! JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = jsonData
+        request = authenticate(request)
+        
+        let session = URLSession(configuration: URLSessionConfiguration.ephemeral)
+        task = session.dataTask(with: request as URLRequest, completionHandler: {(data, response, error) in
+            
+            guard let httpStatus = response as? HTTPURLResponse, let data = data, error == nil else {
+                print("PUT \(url) -> \(error!)")
+                failure([:])
+                return
+            }
+            print("status code = \(httpStatus.statusCode)")
+            //            RCLogO( NSString(data: data!, encoding: 0));
+            
+            if let d = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)  {
+                success(d)
+            } else {
+                print("Not a valid json for url \(url)")
+                failure([:])
+            }
+        })
+        task?.resume()
+    }
+    
 	func upload (data: Data, filename: String, completion: @escaping (NSDictionary) -> Void, error: @escaping (NSDictionary) -> Void) {
 		
 		let request = NSMutableURLRequest()
