@@ -11,6 +11,10 @@ import UIKit
 import Cocoa
 #endif
 
+struct RCHttpError: LocalizedError {
+    var errorDescription: String?
+}
+
 class RCHttp {
 	
     var baseURL: URL! = nil
@@ -29,12 +33,10 @@ class RCHttp {
     }
 	
     
-    func get (at path: String, success: @escaping (Any) -> Void, failure: @escaping ([String: Any]) -> Void) {
+    func get (at path: String, success: @escaping (Any) -> Void, failure: @escaping (Error) -> Void) {
         
         guard baseURL != nil else {
-            print("URL was not set")
-            failure([:])
-            return
+            fatalError("URL was not set")
         }
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -47,7 +49,7 @@ class RCHttp {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let httpStatus = response as? HTTPURLResponse, let data = data, error == nil else {
                 print("GET \(url) -> \(error!)")
-                failure([:])
+                failure(error!)
                 return
             }
             print("status code = \(httpStatus.statusCode)")
@@ -56,7 +58,7 @@ class RCHttp {
                 success(d)
             } else {
                 print("Not a valid json for url \(url)")
-                failure([:])
+                failure(RCHttpError(errorDescription: "Invalid json response"))
             }
 //            print(data)
 //            if let httpStatus = response as? HTTPURLResponse {
@@ -71,12 +73,10 @@ class RCHttp {
 	
 	//pragma mark post data sync and async
 
-    func post (at path: String, parameters: [String: Any], success: @escaping (Any) -> Void, failure: @escaping ([String: Any]) -> Void) {
+    func post (at path: String, parameters: [String: Any], success: @escaping (Any) -> Void, failure: @escaping (Error) -> Void) {
 
         guard baseURL != nil else {
-            print("URL was not set")
-            failure([:])
-            return
+            fatalError("URL was not set")
         }
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -93,7 +93,7 @@ class RCHttp {
 			
             guard let httpStatus = response as? HTTPURLResponse, let data = data, error == nil else {
                 print("POST \(url) -> \(error!)")
-                failure([:])
+                failure(error!)
                 return
             }
 			print("status code = \(httpStatus.statusCode)")
@@ -103,7 +103,7 @@ class RCHttp {
                 success(d)
             } else {
                 print("Not a valid json for url \(url)")
-                failure([:])
+                failure(RCHttpError(errorDescription: "Invalid json response"))
             }
 		})
 		task?.resume()
@@ -111,12 +111,10 @@ class RCHttp {
 	
     //mark: put data sync and async
     
-    func put (at path: String, parameters: [String: Any], success: @escaping (Any) -> Void, failure: @escaping ([String: Any]) -> Void) {
+    func put (at path: String, parameters: [String: Any], success: @escaping (Any) -> Void, failure: @escaping (Error) -> Void) {
         
         guard baseURL != nil else {
-            print("URL was not set")
-            failure([:])
-            return
+            fatalError("URL was not set")
         }
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -133,7 +131,7 @@ class RCHttp {
             
             guard let httpStatus = response as? HTTPURLResponse, let data = data, error == nil else {
                 print("PUT \(url) -> \(error!)")
-                failure([:])
+                failure(error!)
                 return
             }
             print("status code = \(httpStatus.statusCode)")
@@ -143,7 +141,7 @@ class RCHttp {
                 success(d)
             } else {
                 print("Not a valid json for url \(url)")
-                failure([:])
+                failure(RCHttpError(errorDescription: "Invalid json response"))
             }
         })
         task?.resume()
