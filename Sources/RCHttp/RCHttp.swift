@@ -9,6 +9,8 @@ import Foundation
 
 public struct RCHttpError: LocalizedError {
     public var errorDescription: String?
+    public init() {
+    }
 }
 
 public class RCHttp {
@@ -24,6 +26,9 @@ public class RCHttp {
         guard self.baseURL != nil else {
             fatalError("URL is invalid")
         }
+    }
+    
+    public init() {
     }
     
     /// Add an Authorization header to each request with the user:pass encoded in base64

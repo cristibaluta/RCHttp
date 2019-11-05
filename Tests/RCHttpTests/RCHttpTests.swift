@@ -6,7 +6,7 @@ final class RCHttpTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        XCTAssertEqual(RCHttp().text, "Hello, World!")
+        XCTAssertNotNil(RCHttp())
     }
 
     static var allTests = [
