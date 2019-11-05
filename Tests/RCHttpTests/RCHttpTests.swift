@@ -2,14 +2,12 @@ import XCTest
 @testable import RCHttp
 
 final class RCHttpTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertNotNil(RCHttp())
+    func testError() {
+        let err = RCHttpError(errorDescription: "Invalid json response")
+        XCTAssert(err.errorDescription == "Invalid json response")
     }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("testError", testError),
     ]
 }

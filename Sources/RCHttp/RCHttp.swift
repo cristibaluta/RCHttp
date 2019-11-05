@@ -9,7 +9,8 @@ import Foundation
 
 public struct RCHttpError: LocalizedError {
     public var errorDescription: String?
-    public init() {
+    public init(errorDescription: String) {
+        self.errorDescription = errorDescription
     }
 }
 
