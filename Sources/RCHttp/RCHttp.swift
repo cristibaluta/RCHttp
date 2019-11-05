@@ -13,12 +13,12 @@ public struct RCHttpError: LocalizedError {
 
 public class RCHttp {
 	
-    var baseURL: URL! = nil
+    public var baseURL: URL! = nil
 	private var task: URLSessionTask?
     private var base64LoginData: String?
 	
     /// If baseURL is empty  it crashes
-	convenience init (baseURL: String) {
+	public convenience init (baseURL: String) {
 		self.init()
 		self.baseURL = URL(string: baseURL)
         guard self.baseURL != nil else {
@@ -27,14 +27,14 @@ public class RCHttp {
     }
     
     /// Add an Authorization header to each request with the user:pass encoded in base64
-    func authenticate (user: String, password: String) {
+    public func authenticate (user: String, password: String) {
         if let loginData = "\(user):\(password)".data(using: .utf8) {
             base64LoginData = loginData.base64EncodedString()
         }
     }
     
     /// Do a GET request
-    func get (at path: String, success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
+    public func get (at path: String, success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
         
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -58,7 +58,7 @@ public class RCHttp {
     }
 	
 	/// Do  a post request
-    func post (at path: String, parameters: [String: Any], success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
+    public func post (at path: String, parameters: [String: Any], success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
         
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -87,7 +87,7 @@ public class RCHttp {
 	
     //mark: put data sync and async
     
-    func put (at path: String, parameters: [String: Any], success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
+    public func put (at path: String, parameters: [String: Any], success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
         
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -114,7 +114,7 @@ public class RCHttp {
         task!.resume()
     }
     
-	func upload (data: Data, filename: String, completion: @escaping (NSDictionary) -> Void, error: @escaping (NSDictionary) -> Void) {
+	public func upload (data: Data, filename: String, completion: @escaping (NSDictionary) -> Void, error: @escaping (NSDictionary) -> Void) {
 		
 		let request = NSMutableURLRequest()
 		request.url = baseURL
@@ -130,7 +130,7 @@ public class RCHttp {
 		task?.resume()
 	}
 	
-	func cancel() {
+	public func cancel() {
 		task?.cancel()
 	}
 	
