@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct RCHttpError: LocalizedError {
+public struct RCHttpError: LocalizedError {
     var errorDescription: String?
 }
 
-class RCHttp {
+public class RCHttp {
 	
     var baseURL: URL! = nil
 	private var task: URLSessionTask?
