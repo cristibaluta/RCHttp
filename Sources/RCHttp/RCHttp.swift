@@ -8,7 +8,7 @@
 import Foundation
 
 public struct RCHttpError: LocalizedError {
-    var errorDescription: String?
+    public var errorDescription: String?
 }
 
 public class RCHttp {
