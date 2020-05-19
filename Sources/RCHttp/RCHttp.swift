@@ -25,7 +25,7 @@ public class RCHttp {
 		self.init()
 		self.baseURL = URL(string: baseURL)
         guard self.baseURL != nil else {
-            fatalError("URL is invalid")
+            fatalError("RCHttp: URL is invalid")
         }
     }
     
@@ -40,31 +40,32 @@ public class RCHttp {
     }
     
     /// Do a GET request
-    public func get (at path: String, success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
+    public func get (at path: String, success: @escaping (HTTPURLResponse, Data) -> Void, failure: @escaping (Error) -> Void) {
         
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        print("GET from \(url) -> \(request)")
+        print("RCHttp: GET from \(url) -> \(request)")
         
         // Authenticate
         request = authenticate(request)
         
         task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let httpStatus = response as? HTTPURLResponse, let data = data, error == nil else {
-                print("GET from \(url) -> \(error!)")
+            print("RCHttp: GET from \(url) response: \(String(describing: response))")
+            guard let response = response as? HTTPURLResponse, let data = data, error == nil else {
+                print("RCHttp: GET from \(url) -> \(error!)")
                 failure(error!)
                 return
             }
-            print("GET from \(url) response: \(String(data: data, encoding: .utf8) ?? "") -> status code = \(httpStatus.statusCode)")
-            success(data)
+            print("RCHttp: GET from \(url) data: \(String(data: data, encoding: .utf8) ?? "")")
+            success(response, data)
         }
         task!.resume()
     }
 	
 	/// Do  a post request
-    public func post (at path: String, parameters: [String: Any], success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
+    public func post (at path: String, parameters: [String: Any], success: @escaping (HTTPURLResponse, Data) -> Void, failure: @escaping (Error) -> Void) {
         
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -75,25 +76,26 @@ public class RCHttp {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		request.httpBody = jsonData
         request = authenticate(request)
-        print("POST to \(url) -> \(request)")
+        print("RCHttp: POST to \(url) -> \(request)")
 		
 		let session = URLSession(configuration: URLSessionConfiguration.ephemeral)
 		task = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
 			
-            guard let httpStatus = response as? HTTPURLResponse, let data = data, error == nil else {
-                print("POST to \(url) -> \(error!)")
+            print("RCHttp: POST to \(url) response: \(String(describing: response))")
+            guard let response = response as? HTTPURLResponse, let data = data, error == nil else {
+                print("RCHttp: POST to \(url) -> \(error!)")
                 failure(error!)
                 return
             }
-            print("POST to \(url) response: \(String(data: data, encoding: .utf8) ?? "") -> status code = \(httpStatus.statusCode)")
-            success(data)
+            print("RCHttp: POST to \(url) response: \(String(data: data, encoding: .utf8) ?? "")")
+            success(response, data)
 		})
 		task!.resume()
 	}
 	
     //mark: put data sync and async
     
-    public func put (at path: String, parameters: [String: Any], success: @escaping (Data) -> Void, failure: @escaping (Error) -> Void) {
+    public func put (at path: String, parameters: [String: Any], success: @escaping (HTTPURLResponse, Data) -> Void, failure: @escaping (Error) -> Void) {
         
         let fullPath = baseURL.appendingPathComponent(path).absoluteString.removingPercentEncoding!
         let url = URL(string: fullPath)!
@@ -104,18 +106,19 @@ public class RCHttp {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = jsonData
         request = authenticate(request)
-        print("PUT to \(url) -> \(request)")
+        print("RCHttp: PUT to \(url) -> \(request)")
         
         let session = URLSession(configuration: URLSessionConfiguration.ephemeral)
         task = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) in
             
-            guard let httpStatus = response as? HTTPURLResponse, let data = data, error == nil else {
-                print("PUT to \(url) -> \(error!)")
+            print("RCHttp: PUT to \(url) response: \(String(describing: response))")
+            guard let response = response as? HTTPURLResponse, let data = data, error == nil else {
+                print("RCHttp: PUT to \(url) -> \(error!)")
                 failure(error!)
                 return
             }
-            print("PUT to \(url) response: \(String(data: data, encoding: .utf8) ?? "") -> status code = \(httpStatus.statusCode)")
-            success(data)
+            print("RCHttp: PUT to \(url) response: \(String(data: data, encoding: .utf8) ?? "")")
+            success(response, data)
         })
         task!.resume()
     }
